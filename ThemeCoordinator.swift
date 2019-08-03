@@ -24,7 +24,13 @@ class ThemeCoordinator {
     var currentTheme: Theme {
         set(theme) {
             UserDefaults.standard.set(theme.rawValue, forKey: currentThemeKey)
-            coordinatingClosures.forEach { $0(currentTheme) }
+            if isAnimatingEnabled {
+                UIView.animate(withDuration: 0.3) {
+                    self.coordinatingClosures.forEach { $0(self.currentTheme) }
+                }
+            } else {
+                coordinatingClosures.forEach { $0(currentTheme) }
+            }
             NotificationCenter.default.post(Notification(name: ThemeCoordinator.themeDidChangeNotification))
         }
         get {
@@ -36,6 +42,8 @@ class ThemeCoordinator {
             }
         }
     }
+    
+    var isAnimatingEnabled = false
     
     func toggleTheme() {
         switch currentTheme {
